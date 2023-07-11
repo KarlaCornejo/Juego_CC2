@@ -7,6 +7,7 @@
 #include <memory>
 #include <cmath>
 #include "Mapa.h"
+#include "Bomba.h"
 
 #define VIDA_INICIAL 2
 #define VELOCIDAD_INICIAL 140
@@ -24,17 +25,34 @@ public:
 	void dibujarJugador(sf::RenderWindow& ventana);
 	void manejarEntradaJugador(Mapa& generadorMapa);
 	void moverJugador(sf::Time deltaTiempo);
-	void actualizarJugador(sf::Time deltaTiempo);
+	void actualizarJugador(sf::Time deltaTiempo, Mapa& mapGen);
 	int getVida();
 	std::string getNombre();
+
+	Bomba getBombaDelJugador(int i);
+
+	Bomba getBomba(int numeroBomba);
+
+	Bomba* getNumeroBomba(int num_bomba);
+
+	void colocarBomba(sf::Keyboard::Key, Mapa& mapGen);
+
+	void reiniciarJugador();
+
 	~Jugador();
 
 private:
 	sf::Texture m_texturaJugador;
 	sf::Sprite m_spriteJugador; 
+
 	int m_posicionX, m_posicionY;
 	int m_id;
 	int m_vida;
+	
+	int m_inicioBomba;
+	int m_usoBomba;
+	int m_poderBomba;
+	
 	float m_velocidadJugador;
 	bool m_actualizarAnimacion = true;
 	bool m_comienzo = true;
@@ -45,8 +63,14 @@ private:
 	int m_velocidadAnimacion;
 	int m_cuadroAnimacion;
 	sf::Vector2f m_movimientoAnterior;
-	std::vector<sf::Vector2f*> m_listaVisitados;
+	
+	std::vector<Bomba> m_bombasJugador;
+	std::vector<bool> m_bombasDestruidas;
 
+
+
+	std::vector<sf::Vector2f*> m_listaVisitados;
+	
 	bool puedeMoverse;
 	bool m_obtenerPosicionEnfoque;
 };

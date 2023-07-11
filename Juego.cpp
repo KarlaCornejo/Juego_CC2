@@ -21,8 +21,8 @@ Juego::Juego()
 	if (!mapa.cargar(sf::Vector2f(0, 0), RUTA_TEXTURA_CELDA, sf::Vector2u(TAMANO_CELDA, TAMANO_CELDA), ANCHO_MAPA, ALTO_MAPA))
 		std::cout << "error";
 	m_CuadrosPorSegundo = 0;
-	if (!m_TexturaFondo.loadFromFile("Media/Imagen/fondo.png"))
-		std::cout << "error al cargar " << "Media/Imagen/fondo.png" << std::endl;
+	if (!m_TexturaFondo.loadFromFile("Media/Image/fondo.png"))
+		std::cout << "error al cargar " << "Media/Image/fondo.png" << std::endl;
 	m_SpriteFondo.setTexture(m_TexturaFondo);
 	m_SpriteFondo.setPosition(-180, -60);
 	if (!mapa.cargar(sf::Vector2f(0, 0), RUTA_TEXTURA_CELDA, sf::Vector2u(TAMANO_CELDA, TAMANO_CELDA), ANCHO_MAPA, ALTO_MAPA))
@@ -36,7 +36,7 @@ void Juego::reiniciarJuego(sf::RenderWindow& ventana, int numJugadores)
 	m_Jugadores.clear();
 	m_JugadoresVivos.clear();
 	m_JugadoresVivos.push_back(true);
-	m_Jugadores.push_back(new Jugador(0, "Azul", "./Media/Imagen/jugador.png", m_CuadrosPorSegundoSeleccionado, sf::Vector2f(1, 1), &mapa));
+	m_Jugadores.push_back(new Jugador(0, "Azul", "./Media/Image/player.png", m_CuadrosPorSegundoSeleccionado, sf::Vector2f(1, 1), &mapa));
 	if (!mapa.cargar(sf::Vector2f(0, 0), RUTA_TEXTURA_CELDA, sf::Vector2u(TAMANO_CELDA, TAMANO_CELDA), ANCHO_MAPA, ALTO_MAPA))
 		std::cout << "error";
 }
@@ -57,7 +57,7 @@ void Juego::ejecutar(sf::RenderWindow& ventana)
 				tiempoDesdeUltimaActualizacion -= TiempoPorFrame;
 				procesarEventos(ventana);
 				m_Jugadores[0]->manejarEntradaJugador(mapa);
-				m_Jugadores[0]->actualizarJugador(TiempoPorFrame);
+				m_Jugadores[0]->actualizarJugador(TiempoPorFrame, mapa);
 			}
 		}
 
@@ -78,6 +78,7 @@ void Juego::procesarEventos(sf::RenderWindow& ventana)
 			break;
 		case sf::Event::KeyPressed:
 			ventana.setKeyRepeatEnabled(false);
+			m_Jugadores[0]->colocarBomba(evento.key.code, mapa);
 			if (evento.key.code == sf::Keyboard::Escape)
 			{
 				m_EstaEnPausa = true;
@@ -85,6 +86,7 @@ void Juego::procesarEventos(sf::RenderWindow& ventana)
 			break;
 		}
 	}
+	m_Jugadores[0]->manejarEntradaJugador(mapa);
 }
 
 void Juego::renderizar(sf::RenderWindow& ventana)

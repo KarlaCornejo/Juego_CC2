@@ -22,6 +22,8 @@ public:
 	void setLibre(int fila, int columna, bool estaLibre);
 	bool estaLibre(int fila, int columna);
 	sf::Vector2f getFilasColumnas();
+	void actualizarMapa(int fila, int columna, int tipoBloque);
+	void cambiar(int fila, int columna, int tipo, bool randomize);
 
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

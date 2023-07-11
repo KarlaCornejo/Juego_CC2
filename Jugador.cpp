@@ -6,13 +6,17 @@ Jugador::Jugador() {}
 Jugador::Jugador(int id, std::string nombre, std::string rutaArchivo, int limiteFrames, sf::Vector2f posicionCelda, Mapa* generadorMapa)
 	: m_id(0)
 	, m_vida(2)
+	, m_inicioBomba(1)
 	, m_velocidadJugador(140)
 	, m_nombreJugador("vacío")
-	, m_rutaArchivo("./Media/Imagen/player.png")
+	, m_rutaArchivo("./Media/Image/player.png")
 	, m_animacion(1, Abajo)
+	, m_poderBomba(1)
 {
 	m_id = id;
 	m_nombreJugador = nombre;
+	m_inicioBomba = 1;
+	m_usoBomba = 0;
 	puedeMoverse = true;
 	m_obtenerPosicionEnfoque = true;
 	m_listaVisitados.push_back(new sf::Vector2f(0, 0));
@@ -29,6 +33,7 @@ Jugador::Jugador(int id, std::string nombre, std::string rutaArchivo, int limite
 	(m_animacion.x * TAMANO_SPRITE_JUGADOR
 		, m_animacion.y * TAMANO_SPRITE_JUGADOR
 		, TAMANO_SPRITE_JUGADOR, TAMANO_SPRITE_JUGADOR));
+	m_bombasJugador.push_back(Bomba());
 }
 
 void Jugador::setPosition(sf::Vector2f posicionCelda)
@@ -38,6 +43,12 @@ void Jugador::setPosition(sf::Vector2f posicionCelda)
 
 void Jugador::dibujarJugador(sf::RenderWindow& ventana)
 {
+	for (int i = 0; i < m_bombasJugador.size(); i++)
+	{
+		if (m_bombasJugador[i].obtenerUsoBomba() == true)
+			ventana.draw(m_bombasJugador[i]);
+	}
+
 	if (m_vida != 0)
 	{
 		ventana.draw(m_spriteJugador);
@@ -83,6 +94,24 @@ void Jugador::manejarEntradaJugador(Mapa& generadorMapa)
 		m_posicionX += movimiento.x;
 		m_posicionY += movimiento.y;
 	}
+
+	if (generadorMapa.getNumeroCelda(m_posicionY, m_posicionX) == BONUS_AGREGAR_BOMBA)
+	{
+		generadorMapa.cambiar(m_posicionY, m_posicionX, TIPOSUELO, false);
+		m_bombasJugador.push_back(Bomba());
+	}
+	else if (generadorMapa.getNumeroCelda(m_posicionY, m_posicionX) == BONUS_AUMENTAR_EXPLOSIÓN)
+	{
+		generadorMapa.cambiar(m_posicionY, m_posicionX, TIPOSUELO, false);
+		m_poderBomba++;
+	}
+	else if (generadorMapa.getNumeroCelda(m_posicionY, m_posicionX) == BONUS_AUMENTAR_VELOCIDAD)
+	{
+		generadorMapa.cambiar(m_posicionY, m_posicionX, TIPOSUELO, false);
+		m_velocidadJugador += 10;
+	}
+
+
 	m_posicionEnfoque = generadorMapa.obtenerPosicionPunto(m_posicionX, m_posicionY);
 }
 
@@ -151,15 +180,69 @@ void Jugador::moverJugador(sf::Time deltaTiempo)
 		, movimiento.y * deltaTiempo.asSeconds());
 }
 
-void Jugador::actualizarJugador(sf::Time deltaTiempo)
+void Jugador::actualizarJugador(sf::Time deltaTiempo, Mapa& mapGen)
 {
 	Jugador::moverJugador(deltaTiempo);
+	for (int i = 0; i < m_bombasJugador.size(); i++)
+	{
+
+		for (int j = 0; j < m_bombasJugador.size(); j++)
+		{
+			if (j != i)
+			{
+				m_bombasJugador[i].danarBomba(&m_bombasJugador[j]);
+			}
+		}
+
+		if (m_vida >= 0)
+		{
+			m_bombasJugador[i].actualizar(mapGen);
+			if (m_bombasJugador[i].dañarJugador(sf::Vector2f(round(m_spriteJugador.getPosition().x / TAMANO_CELDA), round(m_spriteJugador.getPosition().y / TAMANO_CELDA))) == true)
+			{
+				m_vida = 0;
+				return;
+			}
+		}
+	}
+
 }
 
 int Jugador::getVida()
 {
 	return m_vida;
 }
+
+void Jugador::colocarBomba(sf::Keyboard::Key key, Mapa& mapGen)
+{
+
+		bool canUseLower = false;
+		if ((key == sf::Keyboard::Q) )
+		{
+			std::cout << "USA LA LETRA Q"<<std::endl;
+			for (int i = 0; i < m_bombasJugador.size() && canUseLower == false; i++)
+			{
+				if (m_bombasJugador[i].obtenerUsoBomba() == false)
+				{
+					canUseLower = true;
+					m_bombasJugador[i].crearBomba(mapGen.obtenerPosicionPunto(m_posicionX, m_posicionY), sf::Vector2f(m_posicionX, m_posicionY), m_poderBomba, mapGen);
+
+				}
+			}
+			m_usoBomba++;
+		}
+
+}
+
+Bomba Jugador::getBomba(int num_bomba)
+{
+	return m_bombasJugador[num_bomba];
+}
+
+Bomba* Jugador::getNumeroBomba(int num_bomba)
+{
+	return &m_bombasJugador[num_bomba];
+}
+
 Jugador::~Jugador()
 {
 

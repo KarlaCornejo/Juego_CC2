@@ -7,33 +7,43 @@
 #define TAMANO_CELDA 32
 #define TIPOMURO 0
 #define TIPOSUELO 1
-#define TYPE_BRICS 2
-#define TYPE_WOOD 3
+#define TIPOLADRILLO 2
+#define TIPOMADERA 3
+#define BONUS_AGREGAR_BOMBA 4
+#define BONUS_AUMENTAR_EXPLOSIÓN 5
+#define BONUS_AUMENTAR_VELOCIDAD 6
+#define TIPO_BOMBA 7
 
 class Bloque
 {
 public:
 	Bloque(int tipo, sf::Vector2f posicion, int numeroEnMapa); /// Constructor
 	bool esSolido();
-	/*** Devuelve si el bloque es sólido */
 	sf::Vector2f obtenerPosicion();
-	/* Devuelve la posición del bloque */
 	bool estaLibre();
-	/* Devuelve si el bloque está libre***/
 	void setTipo(int tipo);
-	/*** Establece el tipo del bloque (muro, ladrillo, madera) ***/
 	void setLibre(bool estaLibre);
-	/*** Establece si el bloque está libre ***/
-
+	bool getEsDestrutible();
+	bool estaDestruidoElBloque();
+	void romperBloque();
 	sf::RectangleShape obtenerHitBox();
-	/*** Devuelve el hitbox del bloque ***/
+
+	/*** Funciones adicionales ***/
+	int getTipo();
+	int getVida();
+	bool esColisionable();
+	bool estaDestructible();
+
 private:
-	int m_tipo; // Diferente tipo para gestionar la textura
+	int m_tipo;
+	int m_vida;
 	bool m_esColisionable;
+	bool m_estaDestructible;
 	int m_numeroEnMapa;
 	bool m_estaLibre;
 	sf::RectangleShape m_hitBox;
 	sf::Vector2f m_posicion;
 };
+
 
 #endif // BLOQUE_H_INCLUDED

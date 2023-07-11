@@ -51,13 +51,75 @@ bool Mapa::cargar(sf::Vector2f posicion, const std::string& texturaCelda, sf::Ve
         }
     }
 }
-    void Mapa::draw(sf::RenderTarget & target, sf::RenderStates states) const    {
+   
+void Mapa::actualizarMapa(int fila, int columna, int tileNumber)
+{
+
+
+    Mapa::setNumeroCelda(fila, columna, tileNumber);
+    int tu = tileNumber % (m_texturaCelda.getSize().x / m_tamanoCelda.x);
+    int tv = tileNumber / (m_texturaCelda.getSize().x / m_tamanoCelda.x);
+
+    sf::Vertex* quad = &m_vertices[(columna + fila * m_ancho) * 4];
+    // on définit ses quatre coins
+    quad[0].position = sf::Vector2f(columna * m_tamanoCelda.x + m_posicion.x, fila * m_tamanoCelda.y + m_posicion.y);
+    quad[1].position = sf::Vector2f((columna + 1) * m_tamanoCelda.x + m_posicion.x, fila * m_tamanoCelda.y + m_posicion.y);
+    quad[2].position = sf::Vector2f((columna + 1) * m_tamanoCelda.x + m_posicion.x, (fila + 1) * m_tamanoCelda.y + m_posicion.y);
+    quad[3].position = sf::Vector2f(columna * m_tamanoCelda.x + m_posicion.x, (fila + 1) * m_tamanoCelda.y + m_posicion.y);
+
+    // on définit ses quatre coordonnées de texture
+    // on définit ses quatre coordonnées de texture
+    quad[0].texCoords = sf::Vector2f(tu * m_tamanoCelda.x, tv * m_tamanoCelda.y);
+    quad[1].texCoords = sf::Vector2f((tu + 1) * m_tamanoCelda.x, tv * m_tamanoCelda.y);
+    quad[2].texCoords = sf::Vector2f((tu + 1) * m_tamanoCelda.x, (tv + 1) * m_tamanoCelda.y);
+    quad[3].texCoords = sf::Vector2f(tu * m_tamanoCelda.x, (tv + 1) * m_tamanoCelda.y);
+}
+
+
+void Mapa::cambiar(int line, int column, int type, bool randomize)
+{
+    m_celdas[column * m_alto + line]->romperBloque();
+    if (m_generarMapa[line * m_ancho + column] != TIPOMURO
+        && m_generarMapa[line * m_ancho + column] != TIPOSUELO
+        && m_celdas[column * m_alto + line]->getEsDestrutible())
+    {
+
+        //if(m_tile[line*m_widht+column].DestructTile()==true)
+        //{
+        if (randomize)
+        {
+            int random = rand() % 10;
+            if (random < 4 || random>6)
+                random = TIPOSUELO;
+            type = random;//random;
+        }
+        m_generarMapa[line * m_ancho + column] = type;
+        int tu = type % (m_texturaCelda.getSize().x / TAMANO_CELDA);
+        int tv = type / (m_texturaCelda.getSize().x / TAMANO_CELDA);
+        sf::Vertex* quad = &m_vertices[(line * m_ancho + column) * 4];
+        quad[0].position = sf::Vector2f(column * TAMANO_CELDA, line * TAMANO_CELDA);
+        quad[1].position = sf::Vector2f((column + 1) * TAMANO_CELDA, line * TAMANO_CELDA);
+        quad[2].position = sf::Vector2f((column + 1) * TAMANO_CELDA, (line + 1) * TAMANO_CELDA);
+        quad[3].position = sf::Vector2f(column * TAMANO_CELDA, (line + 1) * TAMANO_CELDA);
+        quad[0].texCoords = sf::Vector2f(tu * TAMANO_CELDA, tv * TAMANO_CELDA);
+        quad[1].texCoords = sf::Vector2f((tu + 1) * TAMANO_CELDA, tv * TAMANO_CELDA);
+        quad[2].texCoords = sf::Vector2f((tu + 1) * TAMANO_CELDA, (tv + 1) * TAMANO_CELDA);
+        quad[3].texCoords = sf::Vector2f(tu * TAMANO_CELDA, (tv + 1) * TAMANO_CELDA);
+        //}
+    }
+
+}
+
+
+
+void Mapa::draw(sf::RenderTarget & target, sf::RenderStates states) const    {
         states.transform *= getTransform();
         states.texture = &m_texturaCelda;
         target.draw(m_vertices, states);
-    }
+}
 
-    void Mapa::cargarMapaDesdeArchivo(const std::string & rutaArchivo)
+
+void Mapa::cargarMapaDesdeArchivo(const std::string & rutaArchivo)
     {
         std::ifstream archivo(rutaArchivo); if (archivo.is_open())
         {
