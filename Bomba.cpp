@@ -220,6 +220,12 @@ sf::Vector2f Bomba::obtenerPosicionBombaTocada(sf::Vector2f posicion){return pos
      return m_esUso;
  }
 
+ bool Bomba::getUsoBomba() const
+ {
+     return m_esUso;
+ }
+
+
  void Bomba::dañarCasillero(Mapa& mapaGen)
  {
      for (int i = 0; i < m_casillerosExplosion.size(); i++)

@@ -145,6 +145,7 @@
     <ClInclude Include="Jugador.h" />
     <ClInclude Include="Bloque.h" />
     <ClInclude Include="Mapa.h" />
+    <ClInclude Include="Visual.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />

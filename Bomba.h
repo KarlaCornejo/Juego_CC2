@@ -95,6 +95,8 @@ public:
 	sf::Vector2f obtenerPosicionBomba();
 	/*****Devuelve la posición de la bomba
 	****/
+
+	bool getUsoBomba() const;
 	virtual void draw(sf::RenderTarget& targets, sf::RenderStates states) const
 	{
 
