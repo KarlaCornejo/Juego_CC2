@@ -131,21 +131,33 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animacion.cpp" />
-    <ClCompile Include="Bomba.cpp" />
+    <ClCompile Include="ModeloBomba.cpp" />
+    <ClCompile Include="ControladorMapa.cpp" />
     <ClCompile Include="Juego.cpp" />
+    <ClCompile Include="ControladorJugador.cpp" />
+    <ClCompile Include="ModeloJugador.cpp" />
+    <ClCompile Include="VistaJugador.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Jugador.cpp" />
-    <ClCompile Include="Bloque.cpp" />
+    <ClCompile Include="ModeloBloque.cpp" />
     <ClCompile Include="Mapa.cpp" />
+    <ClCompile Include="ModeloMapa.cpp" />
+    <ClCompile Include="VentanaInicio.cpp" />
+    <ClCompile Include="VentanaJuego.cpp" />
+    <ClCompile Include="VistaMapa.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animacion.h" />
-    <ClInclude Include="Bomba.h" />
+    <ClInclude Include="ModeloBomba.h" />
+    <ClInclude Include="ControladorMapa.h" />
     <ClInclude Include="Juego.h" />
-    <ClInclude Include="Jugador.h" />
-    <ClInclude Include="Bloque.h" />
-    <ClInclude Include="Mapa.h" />
-    <ClInclude Include="Visual.h" />
+    <ClInclude Include="ModeloBloque.h" />
+    <ClInclude Include="ControladorJugador.h" />
+    <ClInclude Include="ModeloJugador.h" />
+    <ClInclude Include="VentanaInicio.h" />
+    <ClInclude Include="VentanaJuego.h" />
+    <ClInclude Include="VistaJugador.h" />
+    <ClInclude Include="ModeloMapa.h" />
+    <ClInclude Include="VistaMapa.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />

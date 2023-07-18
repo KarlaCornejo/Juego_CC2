@@ -16,53 +16,70 @@ std::string toString(int num)
 Juego::Juego()
 {
 	TiempoPorFrame = sf::seconds(1.f / 60.f);
-	t_MostrarFPS = sf::seconds(1);
 	m_JuegoTerminado = false;
-	if (!mapa.cargar(sf::Vector2f(0, 0), RUTA_TEXTURA_CELDA, sf::Vector2u(TAMANO_CELDA, TAMANO_CELDA), ANCHO_MAPA, ALTO_MAPA))
-		std::cout << "error";
-	m_CuadrosPorSegundo = 0;
+
+	std::unique_ptr<ModeloMapa> modeloMapa = std::make_unique<ModeloMapa>();
+	ControladorMapa controladorMapa(*modeloMapa);
+	controladorMapa.cargar(sf::Vector2f(0, 0), RUTA_TEXTURA_CELDA, sf::Vector2u(TAMANO_CELDA, TAMANO_CELDA), ANCHO_MAPA, ALTO_MAPA);
+	mapaVista.cargarMapa(std::move(modeloMapa));
+
 	if (!m_TexturaFondo.loadFromFile("Media/Image/fondo.png"))
-		std::cout << "error al cargar " << "Media/Image/fondo.png" << std::endl;
+		std::cout << "Error al cargar la textura del fondo" << std::endl;
 	m_SpriteFondo.setTexture(m_TexturaFondo);
 	m_SpriteFondo.setPosition(-180, -60);
-	if (!mapa.cargar(sf::Vector2f(0, 0), RUTA_TEXTURA_CELDA, sf::Vector2u(TAMANO_CELDA, TAMANO_CELDA), ANCHO_MAPA, ALTO_MAPA))
-		std::cout << "error";
 }
 
 void Juego::reiniciarJuego(sf::RenderWindow& ventana, int numJugadores)
 {
+	std::cout << "Te quiero" << std::endl;
+
+	std::unique_ptr<ModeloMapa> modeloMapa = std::make_unique<ModeloMapa>();
+	ControladorMapa controladorMapa(*modeloMapa);
+	controladorMapa.cargar(sf::Vector2f(0, 0), RUTA_TEXTURA_CELDA, sf::Vector2u(TAMANO_CELDA, TAMANO_CELDA), ANCHO_MAPA, ALTO_MAPA);
+	mapaVista.cargarMapa(std::move(modeloMapa));
+
 	m_JuegoTerminado = false;
 	m_IrAlMenu = false;
-	m_Jugadores.clear();
-	m_JugadoresVivos.clear();
-	m_JugadoresVivos.push_back(true);
-	m_Jugadores.push_back(new Jugador(0, "Azul", "./Media/Image/player.png", m_CuadrosPorSegundoSeleccionado, sf::Vector2f(1, 1), &mapa));
-	if (!mapa.cargar(sf::Vector2f(0, 0), RUTA_TEXTURA_CELDA, sf::Vector2u(TAMANO_CELDA, TAMANO_CELDA), ANCHO_MAPA, ALTO_MAPA))
-		std::cout << "error";
-}
+	//m_Jugadores.clear();
+	m_Jugadores_m.clear();
+	ModeloJugador* modelo = new ModeloJugador();
+	ControladorJugador* controlador = new ControladorJugador(*modelo, *mapaVista.getModeloMapa(), sf::Vector2i(1, Derecha));
+	std::string ruta = "./Media/Image/player.png";
+	VistaJugador* jugador = new VistaJugador(*modelo, *controlador, ruta,TiempoPorFrame);
+	m_Jugadores_m.push_back(jugador);
+
+} 
 
 void Juego::ejecutar(sf::RenderWindow& ventana)
 {
+	std::cout << "Te quiero mucho" << std::endl;
 	sf::Clock reloj;
 	sf::Time tiempoDesdeUltimaActualizacion = sf::Time::Zero;
-	ventana.setView(sf::View(sf::Vector2f((mapa.getFilasColumnas().x * 32) / 2, (mapa.getFilasColumnas().y * 32) / 2), sf::Vector2f(mapa.getFilasColumnas().x * 32, mapa.getFilasColumnas().y * 32)));
-	while (ventana.isOpen() && m_JuegoTerminado == false)
-	{
-		if (m_EstaEnPausa == false)
-		{
-			procesarEventos(ventana);        tiempoDesdeUltimaActualizacion += reloj.restart();
+	//std::cout <<"X: " << mapa.getFilasColumnas().x << std::endl;
+	//std::cout <<"Y: "<< mapa.getFilasColumnas().y << std::endl;
+	system("pause");
+	ventana.setView(sf::View(sf::Vector2f((21 * 32) / 2, (21 * 32) / 2), sf::Vector2f(21 * 32, 21 * 32)));
 
-			while (tiempoDesdeUltimaActualizacion > TiempoPorFrame)
+	while (ventana.isOpen() && !m_JuegoTerminado)
+	{
+		procesarEventos(ventana);
+
+		tiempoDesdeUltimaActualizacion += reloj.restart();
+
+		while (tiempoDesdeUltimaActualizacion >= TiempoPorFrame)
+		{
+			tiempoDesdeUltimaActualizacion -= TiempoPorFrame;
+
+			for (auto& jugador : m_Jugadores_m)
 			{
-				tiempoDesdeUltimaActualizacion -= TiempoPorFrame;
-				procesarEventos(ventana);
-				m_Jugadores[0]->manejarEntradaJugador(mapa);
-				m_Jugadores[0]->actualizarJugador(TiempoPorFrame, mapa);
+				jugador->manejarJugador();
+				jugador->actualizarSprite(TiempoPorFrame);
 			}
 		}
 
 		renderizar(ventana);
 	}
+
 	ventana.setView(sf::View(sf::Vector2f(UI_WIDTH / 2, UI_HEIGHT / 2), sf::Vector2f(UI_WIDTH, UI_HEIGHT)));
 }
 
@@ -77,8 +94,6 @@ void Juego::procesarEventos(sf::RenderWindow& ventana)
 			ventana.close();
 			break;
 		case sf::Event::KeyPressed:
-			ventana.setKeyRepeatEnabled(false);
-			m_Jugadores[0]->colocarBomba(evento.key.code, mapa);
 			if (evento.key.code == sf::Keyboard::Escape)
 			{
 				m_EstaEnPausa = true;
@@ -86,17 +101,16 @@ void Juego::procesarEventos(sf::RenderWindow& ventana)
 			break;
 		}
 	}
-	m_Jugadores[0]->manejarEntradaJugador(mapa);
 }
 
 void Juego::renderizar(sf::RenderWindow& ventana)
 {
 	ventana.clear();
-	ventana.draw(mapa);
-	m_Jugadores[0]->dibujarJugador(ventana);
+	ventana.draw(m_SpriteFondo);
+	ventana.draw(mapaVista);
+	m_Jugadores_m[0]->dibujar(ventana);
 	ventana.display();
 }
-
 
 
 

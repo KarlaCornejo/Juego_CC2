@@ -2,13 +2,15 @@
 #define JUEGO_H_INCLUDED
 
 #include <SFML/Graphics.hpp>
-#include "Jugador.h"
+//#include "Jugador.h"
+#include "VistaJugador.h"
 #include <iostream>
-#include "Mapa.h"
 #define RUTA_TEXTURA_CELDA "Media/Image/tile.png"
 #include <memory>
 #include <string>
-
+#include "VistaMapa.h"
+#include "ModeloMapa.h"
+#include "ControladorMapa.h"
 #define UI_HEIGHT 496
 #define UI_WIDTH 724
 
@@ -39,14 +41,13 @@ private:
 
 	bool m_IrAlMenu = false;
 
-	std::vector<bool> m_JugadoresVivos;
-	std::vector<Jugador*> m_Jugadores;
+	//std::vector<Jugador*> m_Jugadores;
+
+	std::vector<VistaJugador*> m_Jugadores_m;
 
 	int m_NumJugadores;
 
-	Jugador m_ListaJugadores;
-
-	Mapa mapa;
+	VistaMapa mapaVista;
 };
 
 #endif // JUEGO_H_INCLUDED

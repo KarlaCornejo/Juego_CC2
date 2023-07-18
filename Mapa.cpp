@@ -1,182 +1,172 @@
-#include "Mapa.h"
+/*#include "Mapa.h"
 #include <fstream>
 #include <iostream>
 
 bool Mapa::cargar(sf::Vector2f posicion, const std::string& texturaCelda, sf::Vector2u tamanoCelda, unsigned int ancho, unsigned int alto)
 {
-    if (m_recargar == true)
-    {
-        m_celdas.clear();
-        m_generarMapa.clear();
-        m_posicionMapa.clear();
-    }
     m_ancho = ancho + 2;
     m_alto = alto + 2;
-    Mapa::cargarMapaDesdeArchivo("mapa.txt");
+    cargarMapaDesdeArchivo("mapa.txt");
     int n = 0;
+
     if (!m_texturaCelda.loadFromFile(texturaCelda))
-        return false; m_vertices.setPrimitiveType(sf::Quads);
-    m_vertices.resize((m_ancho) * (m_alto) * 4);
+    {
+        std::cout << "No se pudo cargar la textura: " << texturaCelda << std::endl;
+        return false;
+    }
+
+    m_vertices.resize(m_ancho, std::vector<sf::VertexArray>(m_alto, sf::VertexArray(sf::Quads, 4)));
+    m_celdas.resize(m_ancho, std::vector<Bloque*>(m_alto, nullptr));
+    m_posicionMapa.resize(m_ancho, std::vector<sf::Vector2f>(m_alto, sf::Vector2f()));
+
     m_posicion = posicion;
     m_tamanoCelda = tamanoCelda;
+    std::cout << "Ancho: " << m_ancho << " Alto: " << m_alto << std::endl;
 
-    for (unsigned int i = 0; i < m_ancho; ++i)
+    for (unsigned int i = 0; i < m_ancho; i++)
     {
-        for (unsigned int j = 0; j < m_alto; ++j)
+        for (unsigned int j = 0; j < m_alto; j++)
         {
-            int numeroCelda = m_generarMapa[i + (j * m_ancho)];
-            std::cout << "i: " << i << "j: " << j << "  M: " << i + (j * m_ancho) << " : " << numeroCelda << std::endl;
+            int numeroCelda = m_generarMapa[i][j];
+            std::cout << numeroCelda << " - ";
 
-            m_celdas.push_back(new Bloque(numeroCelda, sf::Vector2f(i * tamanoCelda.x + posicion.x,
-                +j * tamanoCelda.y + posicion.y), n));
-            m_posicionMapa.push_back(sf::Vector2f(i * tamanoCelda.x + posicion.x
-                , j * tamanoCelda.y + posicion.y));
+            m_celdas[i][j] = new Bloque(numeroCelda, sf::Vector2f(i * tamanoCelda.x + posicion.x, j * tamanoCelda.y + posicion.y), n);
+            m_posicionMapa[i][j] = sf::Vector2f(i * tamanoCelda.x + posicion.x, j * tamanoCelda.y + posicion.y);
 
             int tu = numeroCelda % (m_texturaCelda.getSize().x / tamanoCelda.x);
             int tv = numeroCelda / (m_texturaCelda.getSize().x / tamanoCelda.x);
 
-            sf::Vertex* quad = &m_vertices[(i + j * m_ancho) * 4];
+            sf::VertexArray& quad = m_vertices[i][j];
 
-            quad[0].position = sf::Vector2f(i * tamanoCelda.x + posicion.x, j * tamanoCelda.y + posicion.y);
-            quad[1].position = sf::Vector2f((i + 1) * tamanoCelda.x + posicion.x, j * tamanoCelda.y + posicion.y);
-            quad[2].position = sf::Vector2f((i + 1) * tamanoCelda.x + posicion.x, (j + 1) * tamanoCelda.y + posicion.y);
-            quad[3].position = sf::Vector2f(i * tamanoCelda.x + posicion.x, (j + 1) * tamanoCelda.y + posicion.y);
+            quad[0].position = sf::Vector2f(j * tamanoCelda.x + posicion.x, i * tamanoCelda.y + posicion.y);
+            quad[1].position = sf::Vector2f((j + 1) * tamanoCelda.x + posicion.x, i * tamanoCelda.y + posicion.y);
+            quad[2].position = sf::Vector2f((j + 1) * tamanoCelda.x + posicion.x, (i + 1) * tamanoCelda.y + posicion.y);
+            quad[3].position = sf::Vector2f(j * tamanoCelda.x + posicion.x, (i + 1) * tamanoCelda.y + posicion.y);
 
             quad[0].texCoords = sf::Vector2f(tu * tamanoCelda.x, tv * tamanoCelda.y);
             quad[1].texCoords = sf::Vector2f((tu + 1) * tamanoCelda.x, tv * tamanoCelda.y);
             quad[2].texCoords = sf::Vector2f((tu + 1) * tamanoCelda.x, (tv + 1) * tamanoCelda.y);
             quad[3].texCoords = sf::Vector2f(tu * tamanoCelda.x, (tv + 1) * tamanoCelda.y);
 
+
             n++;
+        }std::cout << std::endl;
+    }
+
+    return true;
+}
+
+void Mapa::cargarMapaDesdeArchivo(const std::string& rutaArchivo)
+{
+    std::ifstream archivo(rutaArchivo);
+    if (archivo.is_open())
+    {
+        srand(time(NULL));
+
+        m_generarMapa.clear();
+        for (int i = 0; i < m_ancho; i++)
+        {
+            std::vector<int> fila;
+            for (int j = 0; j < m_alto; j++)
+            {
+                int valorCelda;
+                archivo >> valorCelda;
+                std::cout << valorCelda << std::endl;
+                fila.push_back(valorCelda);
+            }
+            m_generarMapa.push_back(fila);
         }
+
+        archivo.close();
+    }
+    else
+    {
+        std::cout << "No se pudo abrir el archivo: " << rutaArchivo << std::endl;
     }
 }
-   
-void Mapa::actualizarMapa(int fila, int columna, int tileNumber)
+
+sf::Vector2f Mapa::obtenerPosicionPunto(int fila, int columna)
 {
+    return m_posicionMapa[fila][columna];
+}
 
+int Mapa::getNumeroCelda(int fila, int columna)
+{
+    return m_generarMapa[fila][columna];
+}
 
-    Mapa::setNumeroCelda(fila, columna, tileNumber);
-    int tu = tileNumber % (m_texturaCelda.getSize().x / m_tamanoCelda.x);
-    int tv = tileNumber / (m_texturaCelda.getSize().x / m_tamanoCelda.x);
+void Mapa::setNumeroCelda(int fila, int columna, int tipo)
+{
+    m_generarMapa[fila][columna] = tipo;
+    m_celdas[fila][columna]->setTipo(tipo);
+}
 
-    sf::Vertex* quad = &m_vertices[(columna + fila * m_ancho) * 4];
-    // on définit ses quatre coins
-    quad[0].position = sf::Vector2f(columna * m_tamanoCelda.x + m_posicion.x, fila * m_tamanoCelda.y + m_posicion.y);
-    quad[1].position = sf::Vector2f((columna + 1) * m_tamanoCelda.x + m_posicion.x, fila * m_tamanoCelda.y + m_posicion.y);
-    quad[2].position = sf::Vector2f((columna + 1) * m_tamanoCelda.x + m_posicion.x, (fila + 1) * m_tamanoCelda.y + m_posicion.y);
-    quad[3].position = sf::Vector2f(columna * m_tamanoCelda.x + m_posicion.x, (fila + 1) * m_tamanoCelda.y + m_posicion.y);
+Bloque* Mapa::getCelda(int fila, int columna)
+{
+    return m_celdas[fila][columna];
+}
 
-    // on définit ses quatre coordonnées de texture
-    // on définit ses quatre coordonnées de texture
+void Mapa::setLibre(int fila, int columna, bool estaLibre)
+{
+    getCelda(fila, columna)->setLibre(estaLibre);
+}
+
+bool Mapa::estaLibre(int fila, int columna)
+{
+    return getCelda(fila, columna)->estaLibre();
+}
+
+sf::Vector2f Mapa::getFilasColumnas()
+{
+    return sf::Vector2f(m_ancho, m_alto);
+}
+
+void Mapa::actualizarMapa(int fila, int columna, int tipoBloque)
+{
+    setNumeroCelda(fila, columna, tipoBloque);
+
+    int tu = tipoBloque % (m_texturaCelda.getSize().x / m_tamanoCelda.x);
+    int tv = tipoBloque / (m_texturaCelda.getSize().x / m_tamanoCelda.x);
+
+    sf::VertexArray& quad = m_vertices[fila][columna];
     quad[0].texCoords = sf::Vector2f(tu * m_tamanoCelda.x, tv * m_tamanoCelda.y);
     quad[1].texCoords = sf::Vector2f((tu + 1) * m_tamanoCelda.x, tv * m_tamanoCelda.y);
     quad[2].texCoords = sf::Vector2f((tu + 1) * m_tamanoCelda.x, (tv + 1) * m_tamanoCelda.y);
     quad[3].texCoords = sf::Vector2f(tu * m_tamanoCelda.x, (tv + 1) * m_tamanoCelda.y);
 }
 
-
-void Mapa::cambiar(int line, int column, int type, bool randomize)
+void Mapa::cambiar(int fila, int columna, int tipo, bool randomize)
 {
-    m_celdas[column * m_alto + line]->romperBloque();
-    if (m_generarMapa[line * m_ancho + column] != TIPOMURO
-        && m_generarMapa[line * m_ancho + column] != TIPOSUELO
-        && m_celdas[column * m_alto + line]->getEsDestrutible())
+    m_celdas[fila][columna]->romperBloque();
+    if (m_generarMapa[fila][columna] != TIPOMURO && m_generarMapa[fila][columna] != TIPOSUELO && m_celdas[fila][columna]->getEsDestrutible())
     {
-
-        //if(m_tile[line*m_widht+column].DestructTile()==true)
-        //{
         if (randomize)
         {
             int random = rand() % 10;
-            if (random < 4 || random>6)
+            if (random < 4 || random > 6)
                 random = TIPOSUELO;
-            type = random;//random;
+            tipo = random;
         }
-        m_generarMapa[line * m_ancho + column] = type;
-        int tu = type % (m_texturaCelda.getSize().x / TAMANO_CELDA);
-        int tv = type / (m_texturaCelda.getSize().x / TAMANO_CELDA);
-        sf::Vertex* quad = &m_vertices[(line * m_ancho + column) * 4];
-        quad[0].position = sf::Vector2f(column * TAMANO_CELDA, line * TAMANO_CELDA);
-        quad[1].position = sf::Vector2f((column + 1) * TAMANO_CELDA, line * TAMANO_CELDA);
-        quad[2].position = sf::Vector2f((column + 1) * TAMANO_CELDA, (line + 1) * TAMANO_CELDA);
-        quad[3].position = sf::Vector2f(column * TAMANO_CELDA, (line + 1) * TAMANO_CELDA);
-        quad[0].texCoords = sf::Vector2f(tu * TAMANO_CELDA, tv * TAMANO_CELDA);
-        quad[1].texCoords = sf::Vector2f((tu + 1) * TAMANO_CELDA, tv * TAMANO_CELDA);
-        quad[2].texCoords = sf::Vector2f((tu + 1) * TAMANO_CELDA, (tv + 1) * TAMANO_CELDA);
-        quad[3].texCoords = sf::Vector2f(tu * TAMANO_CELDA, (tv + 1) * TAMANO_CELDA);
-        //}
+        setNumeroCelda(fila, columna, tipo);
+        int tu = tipo % (m_texturaCelda.getSize().x / m_tamanoCelda.x);
+        int tv = tipo / (m_texturaCelda.getSize().x / m_tamanoCelda.x);
+        sf::VertexArray& quad = m_vertices[fila][columna];
+        quad[0].texCoords = sf::Vector2f(tu * m_tamanoCelda.x, tv * m_tamanoCelda.y);
+        quad[1].texCoords = sf::Vector2f((tu + 1) * m_tamanoCelda.x, tv * m_tamanoCelda.y);
+        quad[2].texCoords = sf::Vector2f((tu + 1) * m_tamanoCelda.x, (tv + 1) * m_tamanoCelda.y);
+        quad[3].texCoords = sf::Vector2f(tu * m_tamanoCelda.x, (tv + 1) * m_tamanoCelda.y);
     }
-
 }
 
-
-
-void Mapa::draw(sf::RenderTarget & target, sf::RenderStates states) const    {
-        states.transform *= getTransform();
-        states.texture = &m_texturaCelda;
-        target.draw(m_vertices, states);
-}
-
-
-void Mapa::cargarMapaDesdeArchivo(const std::string & rutaArchivo)
+void Mapa::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{
+    states.transform *= getTransform();
+    states.texture = &m_texturaCelda;
+    for (unsigned int i = 0; i < m_ancho; ++i)
     {
-        std::ifstream archivo(rutaArchivo); if (archivo.is_open())
+        for (unsigned int j = 0; j < m_alto; ++j)
         {
-            srand(time(NULL));
-
-            m_generarMapa.clear();
-            for (int i = 0; i < m_alto; i++)
-            {
-                for (int j = 0; j < m_ancho; j++)
-                {
-                    int valorCelda;
-                    archivo >> valorCelda;
-                    std::cout << valorCelda << std::endl;
-                    m_generarMapa.push_back(valorCelda);
-                }
-            }
-
-            archivo.close();
-        }
-        else
-        {
-            std::cout << "No se pudo abrir el archivo: " << rutaArchivo << std::endl;
+            target.draw(m_vertices[i][j], states);
         }
     }
-
-    sf::Vector2f Mapa::obtenerPosicionPunto(int fila, int columna)
-    {
-        return m_posicionMapa[fila * m_alto + columna];
-    }
-
-    int Mapa::getNumeroCelda(int fila, int columna)
-    {
-        return m_generarMapa[fila * m_ancho + columna];
-    }
-
-    sf::Vector2f Mapa::getFilasColumnas()
-    {
-        return sf::Vector2f(m_ancho, m_alto);
-    }
-
-    Bloque* Mapa::getCelda(int fila, int columna)
-    {
-        return m_celdas[fila * m_ancho + columna];
-    }
-
-    void Mapa::setNumeroCelda(int fila, int columna, int tipo)
-    {
-        m_generarMapa[fila * m_ancho + columna] = tipo;
-        m_celdas[fila * m_ancho + columna]->setTipo(tipo);
-    }
-
-    void Mapa::setLibre(int fila, int columna, bool estaLibre)
-    {
-        getCelda(fila, columna)->setLibre(estaLibre);
-    }
-
-    bool Mapa::estaLibre(int fila, int columna)
-    {
-        return getCelda(fila, columna)->estaLibre();
-    }
+}*/
