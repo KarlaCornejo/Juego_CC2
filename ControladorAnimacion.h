@@ -5,11 +5,11 @@
 #include <memory>
 #include <map>
 
-class Animacion
+class ControladorAnimacion
 {
 public:
-    Animacion(std::string const& id);
-    virtual ~Animacion();
+    ControladorAnimacion(std::string const& id);
+    virtual ~ControladorAnimacion();
 
     /* retourne la texture référencée par l'objet
      * retourne nullptr si la texture n'a pas ete load correctement

@@ -24,10 +24,7 @@
     <ClCompile Include="ModeloBloque.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="Mapa.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Animacion.cpp">
+    <ClCompile Include="ControladorAnimacion.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="ModeloBomba.cpp">
@@ -65,7 +62,7 @@
     <ClInclude Include="ModeloBloque.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="Animacion.h">
+    <ClInclude Include="ControladorAnimacion.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="ModeloBomba.h">

@@ -130,7 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Animacion.cpp" />
+    <ClCompile Include="ControladorAnimacion.cpp" />
     <ClCompile Include="ModeloBomba.cpp" />
     <ClCompile Include="ControladorMapa.cpp" />
     <ClCompile Include="Juego.cpp" />
@@ -139,14 +139,13 @@
     <ClCompile Include="VistaJugador.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModeloBloque.cpp" />
-    <ClCompile Include="Mapa.cpp" />
     <ClCompile Include="ModeloMapa.cpp" />
     <ClCompile Include="VentanaInicio.cpp" />
     <ClCompile Include="VentanaJuego.cpp" />
     <ClCompile Include="VistaMapa.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animacion.h" />
+    <ClInclude Include="ControladorAnimacion.h" />
     <ClInclude Include="ModeloBomba.h" />
     <ClInclude Include="ControladorMapa.h" />
     <ClInclude Include="Juego.h" />

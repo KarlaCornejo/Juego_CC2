@@ -1,6 +1,6 @@
 #ifndef MODELO_MAPA_H_INCLUDED
 #define MODELO_MAPA_H_INCLUDED
-#include "Bloque.h"
+#include "ModeloBloque.h"
 #include <SFML/Graphics.hpp>
 #include <vector>
 #define ALTO_MAPA 19

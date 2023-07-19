@@ -7,7 +7,8 @@
 #include <vector>
 #include <iostream>
 #include "VistaMapa.h"
-#include "Animacion.h"
+#include "ControladorAnimacion.h"
+#include "ModeloBloque.h"
 
 #define SIZE_BOMB 32
 #define PATH_TO_BOMB_TEXTURE "./Media/Image/Bomb/classicBomb.png"
@@ -19,10 +20,10 @@
 class ModeloBomba : public sf::Drawable
 {
 private:
-	Animacion m_texturaBomba;
+	ControladorAnimacion m_texturaBomba;
 	sf::Sprite m_spriteBomba;
 
-	Animacion m_texturaExplosion;
+	ControladorAnimacion m_texturaExplosion;
 	std::vector<sf::Sprite> m_spritesExplosion;
 
 	sf::Time m_retrasoExplosion;
